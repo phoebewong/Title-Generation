@@ -19,3 +19,9 @@ def get_abstract(paper_text):
         front = paper_text.split("Abstract ", 1)[1]
         abst = front.split("1  INTRODUCTION", 1)[0]
     return abst
+
+def preprocessing(papers):
+    papers.abstract = papers.abstract.apply(lambda x: np.nan if x == 'Abstract Missing' else x)
+    papers[['abstract','paper_text']] = papers[['abstract','paper_text']].apply(lambda x: getSpace(x), axis = 1)
+    papers['abstract'] = papers['paper_text'].apply(get_abstract)
+    return papers
