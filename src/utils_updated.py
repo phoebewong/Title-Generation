@@ -42,7 +42,6 @@ def getAbstract(paper_text, methods = 1):
         try:
             a1 = re.search('abstract\n', paper_text, re.IGNORECASE)
             paper_text = paper_text[a1.end():]
-            paper_text = paper_text[a1.end():]
             #find the next section in all cap
             a2 = re.search(r'\n\n+.+\n\n', paper_text)
             return paper_text[: a2.start()]
@@ -50,18 +49,26 @@ def getAbstract(paper_text, methods = 1):
             return np.nan
 
 
-def preprocessing(papers, formatCols = ['title', 'abstract','paper_text']):
+def preprocessing(papers, formatCols = ['title', 'abstract','paper_text'], dropnan = False):
     "preliminary data preprocessing for model fitting"
+    #avoid modifying original dataset
+    papersNew = papers.copy()
     #replace missing values with nan
-    papers.abstract = papers.abstract.apply(lambda x: np.nan if x == 'Abstract Missing' else x)
+    papersNew.abstract = papersNew.abstract.apply(lambda x: np.nan if x == 'Abstract Missing' else x)
     #extract missing abstract in two steps
     #steps identified by ad-hoc examination of missing values
     for m in [1, 2]:
         #try searching for abstract in text if value is missing
-        papers['abstract_new'] = papers.paper_text.apply(lambda x: getAbstract(x, methods = m))
+        papersNew['abstract_new'] = papersNew.paper_text.apply(lambda x: getAbstract(x, methods = m))
         #replace nan in abstract with extracted abstract
-        papers.loc[papers.abstract.isnull(), 'abstract'] = papers.abstract_new
-        papers.drop(['abstract_new'], axis = 1, inplace = True)
+        papersNew.loc[papersNew.abstract.isnull(), 'abstract'] = papersNew.abstract_new
+        papersNew.drop(['abstract_new'], axis = 1, inplace = True)
     #format columns of interest
-    papers[formatCols] = papers[formatCols].apply(lambda x: formatText(x), axis = 1)
-    return papers
+    papersNew[formatCols] = papersNew[formatCols].apply(lambda x: formatText(x), axis = 1)
+    if dropnan:
+        #drop na in abstract
+        papersNew = papersNew.dropna(subset = ['abstract'])
+        #append abstract and title length to data frame
+        papersNew ['aLen'] = papersNew.abstract.apply(lambda x: len(x.split(' ')))
+        papersNew ['tLen'] = papersNew.title.apply(lambda x: len(x.split(' ')))
+    return papersNew

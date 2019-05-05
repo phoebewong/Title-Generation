@@ -1,5 +1,6 @@
 # project-specific
 data/*
+src/embeddings/*
 *.DS_Store
 
 # Byte-compiled / optimized / DLL files
