@@ -1,6 +1,8 @@
 # project-specific
 data/*
 src/embeddings/*
+src/rnn_training_history/*
+src/rnn_preprocessing_history/*
 *.DS_Store
 
 # Byte-compiled / optimized / DLL files
