@@ -1,4 +1,5 @@
 ## Evaluation
+from rouge import Rouge 
 def rouge_evaluation(prediction_list, ref_list, method = "rouge-1"):
     '''
     Use rouge to evaluate the title similarity
